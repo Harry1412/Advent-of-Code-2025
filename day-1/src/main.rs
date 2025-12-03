@@ -1,6 +1,10 @@
+// Solution to day 1 of the Advent of Code challenge
+
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
+/// Read a file and generate a vector of rotation values (where a left rotation
+/// is denoted by a negative value)
 fn parse_file(name: &str) -> Vec<i32> {
     let file = File::open(name).unwrap();
     let reader = BufReader::new(file);
@@ -19,6 +23,8 @@ fn parse_file(name: &str) -> Vec<i32> {
     rotations
 }
 
+/// Apply a number of rotations and count the number of times the dial ends on
+/// zero
 fn count_zero_stops(start_value: i32, rotations: &Vec<i32>) -> u32 {
     let mut current_value = start_value;
     let mut n_zeros = 0;
@@ -34,12 +40,14 @@ fn count_zero_stops(start_value: i32, rotations: &Vec<i32>) -> u32 {
     n_zeros
 }
 
+/// Apply a number of rotations and count the number of times the dial passes or
+/// ends on zero
 fn count_zero_clicks(start_value: i32, rotations: &Vec<i32>) -> u32 {
     let mut current_value = start_value;
     let mut n_clicks = 0;
 
     for value in rotations {
-        // Update value
+        // Find new value
         let mut new_value = current_value + value;
         // Count a click if the updated value is zero
         if new_value == 0 {
@@ -53,6 +61,8 @@ fn count_zero_clicks(start_value: i32, rotations: &Vec<i32>) -> u32 {
             if current_value == 0 && *value < 0 {
                 n_clicks -= 1;
             }
+
+            // Find number of times the dial passes zero and the new value
             n_clicks += new_value.div_euclid(100).abs() as u32;
             new_value = new_value.rem_euclid(100);
 
