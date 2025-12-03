@@ -42,7 +42,7 @@ fn get_joltage_1(ratings: &String) -> u32 {
 
 /// Finds the largest element in a vector which does not exist within n elements
 /// of the end
-fn highest_suitable_element(vec: &Vec<u64>, exclusion_len: usize) -> usize {
+fn highest_suitable_element(vec: &[u64], exclusion_len: usize) -> usize {
     vec.get(..vec.len() - exclusion_len)
         .unwrap()
         .iter()
@@ -56,9 +56,9 @@ fn highest_suitable_element(vec: &Vec<u64>, exclusion_len: usize) -> usize {
 /// Get the maximum joltage from a bank of batteries, where the total is
 /// comprised of n successive (but not necessarily adjacent) joltages from the
 /// bank.
-fn get_joltage_2(ratings: &String, n: usize) -> u64 {
+fn get_joltage_n(ratings: &String, n: usize) -> u64 {
     // Parse string data and convert to vector
-    let mut r_vec: Vec<u64> = ratings
+    let r_vec: Vec<u64> = ratings
         .chars()
         .map(|c| c.to_digit(10).unwrap() as u64)
         .collect();
@@ -66,16 +66,17 @@ fn get_joltage_2(ratings: &String, n: usize) -> u64 {
     // Find the optimal ratings by iterating through to find the highest
     // possible rating for each position in the vector.
     let mut opt_ratings = Vec::new();
+    let mut r_ref = r_vec.get(..).unwrap();
     for i in (0..n).rev() {
-        let loc = highest_suitable_element(&r_vec, i);
-        opt_ratings.push(*r_vec.get(loc).unwrap());
-        r_vec = r_vec.split_off(loc + 1);
+        let loc = highest_suitable_element(r_ref, i);
+        opt_ratings.push(r_ref.get(loc).unwrap());
+        r_ref = r_ref.get(loc + 1..).unwrap();
     }
 
     opt_ratings
         .iter()
         .enumerate()
-        .map(|(i, r)| r * 10_u64.pow((n - 1 - i) as u32))
+        .map(|(i, r)| *r * 10_u64.pow((n - 1 - i) as u32))
         .sum()
 }
 
@@ -86,7 +87,7 @@ fn sum_joltages_2(banks: &Vec<String>) -> u32 {
 
 /// Sum the joltages from each bank to solve part 2
 fn sum_joltages_n(banks: &Vec<String>, n: usize) -> u64 {
-    banks.iter().map(|b| get_joltage_2(b, n)).sum()
+    banks.iter().map(|b| get_joltage_n(b, n)).sum()
 }
 
 fn main() {
