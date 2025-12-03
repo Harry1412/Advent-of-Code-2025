@@ -80,9 +80,12 @@ fn count_zero_clicks(start_value: i32, rotations: &Vec<i32>) -> u32 {
 
 fn main() {
     let rotations = parse_file("input.txt");
-    let n_zero_stops = count_zero_stops(50, &rotations);
-    let n_zero_clicks = count_zero_clicks(50, &rotations);
 
+    // Part 1
+    let n_zero_stops = count_zero_stops(50, &rotations);
     println!("Number of times stopped at zero = {}", n_zero_stops);
+
+    // Part 2
+    let n_zero_clicks = count_zero_clicks(50, &rotations);
     println!("Number of zero clicks = {}", n_zero_clicks);
 }
