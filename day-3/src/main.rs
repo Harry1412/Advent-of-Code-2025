@@ -3,7 +3,7 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
-/// Read the problem file and add each line to a vector.
+/// Read the input file and add each line to a vector.
 fn parse_file(name: &str) -> Vec<String> {
     let file = File::open(name).unwrap();
     let reader = BufReader::new(file);
@@ -48,7 +48,7 @@ fn highest_suitable_element(vec: &Vec<u64>, exclusion_len: usize) -> usize {
         .iter()
         .enumerate()
         .rev()
-        .max_by_key(|&(_i, x)| x)
+        .max_by_key(|&(_, x)| x)
         .unwrap()
         .0
 }
@@ -80,23 +80,28 @@ fn get_joltage_2(ratings: &String, n: usize) -> u64 {
 }
 
 /// Sum the joltages from each bank to solve part 1
-fn sum_joltages_1(banks: &Vec<String>) -> u32 {
+fn sum_joltages_2(banks: &Vec<String>) -> u32 {
     banks.iter().map(get_joltage_1).sum()
 }
 
 /// Sum the joltages from each bank to solve part 2
-fn sum_joltages_2(banks: &Vec<String>) -> u64 {
-    banks.iter().map(|b| get_joltage_2(b, 12)).sum()
+fn sum_joltages_n(banks: &Vec<String>, n: usize) -> u64 {
+    banks.iter().map(|b| get_joltage_2(b, n)).sum()
 }
 
 fn main() {
     let banks = parse_file("input.txt");
 
     // Part 1
-    let total = sum_joltages_1(&banks);
+    let total = sum_joltages_2(&banks);
     println!("Part 1 total joltage = {}", total);
 
     // Part 2
-    let total = sum_joltages_2(&banks);
+    let total = sum_joltages_n(&banks, 12);
     println!("Part 2 total joltage = {}", total);
+
+    // Part 1 (general) - This could be used instead, but the original solution
+    // for part 1 is quicker so has been preserved
+    let total = sum_joltages_n(&banks, 2);
+    println!("Part 1 total joltage (from general) = {}", total);
 }
