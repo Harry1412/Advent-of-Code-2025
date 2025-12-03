@@ -9,35 +9,40 @@ fn parse_file(name: &str) -> Vec<RangeInclusive<u64>> {
     let mut contents = String::new();
     file.read_to_string(&mut contents).unwrap();
 
-    let mut ranges = Vec::new();
-    for range in contents.split(",") {
-        let values = range.split_once("-").unwrap();
-        let start: u64 = values.0.parse().unwrap();
-        let end: u64 = values.1.parse().unwrap();
-        ranges.push(start..=end);
+    contents
+        .split(",")
+        .map(|range| {
+            let values = range.split_once("-").unwrap();
+            let start: u64 = values.0.parse().unwrap();
+            let end: u64 = values.1.parse().unwrap();
+            start..=end
+        })
+        .collect()
+}
+
+/// Checks if a provided id is invalid, where an invalid id is defined as the
+/// first and second halves being identical i.e. of the format XYZXYZ
+fn check_if_invalid(id: &u64) -> bool {
+    let str_id = id.to_string();
+    // Only check ids which are a multiple of 2
+    if str_id.len() % 2 == 0 {
+        let mid = str_id.len() / 2;
+        let parts = str_id.split_at(mid);
+        if parts.0 == parts.1 {
+            return true;
+        }
     }
-    ranges
+    false
 }
 
 /// Sum all invalid ids within the provided ranges, where an invalid id is
 /// defined as the first and second halves being identical i.e. of the format
 /// XYZXYZ
 fn sum_invalid_ids(ranges: &Vec<RangeInclusive<u64>>) -> u64 {
-    let mut total = 0;
-    for range in ranges {
-        for id in range.to_owned() {
-            let str_id = id.to_string();
-            // Only check ids which are a multiple of 2
-            if str_id.len() % 2 == 0 {
-                let mid = str_id.len() / 2;
-                let parts = str_id.split_at(mid);
-                if parts.0 == parts.1 {
-                    total += id
-                }
-            }
-        }
-    }
-    total
+    ranges
+        .iter()
+        .map(|r| r.to_owned().filter(check_if_invalid).sum::<u64>())
+        .sum()
 }
 
 /// Checks if the n parts of a provided id are all equal. This assumes that the
@@ -57,7 +62,7 @@ fn check_parts_equal(mut id: String, n: usize) -> bool {
 
 /// Checks if a provided id is invalid, where an invalid id is defined as having
 /// a component repeated any number of times e.g. XYXY, XYXYXY
-fn check_if_invalid(id: u64) -> bool {
+fn check_if_invalid_2(id: &u64) -> bool {
     let str_id = id.to_string();
     let n_digits = str_id.len();
     // Loop through all possible factors of the number of digits
@@ -75,15 +80,10 @@ fn check_if_invalid(id: u64) -> bool {
 /// Sum all invalid ids within the provided ranges, where an invalid id is
 /// defined as having a component repeated any number of times e.g. XYXY, XYXYXY
 fn sum_invalid_ids_2(ranges: &Vec<RangeInclusive<u64>>) -> u64 {
-    let mut total = 0;
-    for range in ranges {
-        for id in range.to_owned() {
-            if check_if_invalid(id) {
-                total += id
-            }
-        }
-    }
-    total
+    ranges
+        .iter()
+        .map(|r| r.to_owned().filter(check_if_invalid_2).sum::<u64>())
+        .sum()
 }
 
 fn main() {
