@@ -30,11 +30,11 @@ fn get_joltage_1(ratings: &String) -> u32 {
         .unwrap();
 
     if loc < r_vec.len() - 1 {
-        let new_vec = r_vec.get((loc + 1)..).unwrap();
+        let new_vec = &r_vec[(loc + 1)..];
         let j2 = new_vec.iter().max().unwrap();
         j1 * 10 + j2
     } else {
-        let new_vec = r_vec.get(..r_vec.len() - 1).unwrap();
+        let new_vec = &r_vec[..r_vec.len() - 1];
         let j2 = new_vec.iter().max().unwrap();
         j2 * 10 + j1
     }
@@ -42,9 +42,8 @@ fn get_joltage_1(ratings: &String) -> u32 {
 
 /// Finds the largest element in a vector which does not exist within n elements
 /// of the end
-fn highest_suitable_element(vec: &[u64], exclusion_len: usize) -> usize {
-    vec.get(..vec.len() - exclusion_len)
-        .unwrap()
+fn highest_suitable_element(vec: &[u32], exclusion_len: usize) -> usize {
+    vec[..vec.len() - exclusion_len]
         .iter()
         .enumerate()
         .rev()
@@ -58,26 +57,19 @@ fn highest_suitable_element(vec: &[u64], exclusion_len: usize) -> usize {
 /// bank.
 fn get_joltage_n(ratings: &String, n: usize) -> u64 {
     // Parse string data and convert to vector
-    let r_vec: Vec<u64> = ratings
-        .chars()
-        .map(|c| c.to_digit(10).unwrap() as u64)
-        .collect();
+    let r_vec: Vec<u32> = ratings.chars().map(|c| c.to_digit(10).unwrap()).collect();
 
     // Find the optimal ratings by iterating through to find the highest
     // possible rating for each position in the vector.
-    let mut opt_ratings = Vec::new();
-    let mut r_ref = r_vec.get(..).unwrap();
+    let mut opt_ratings = String::new();
+    let mut r_ref = &r_vec[..];
     for i in (0..n).rev() {
         let loc = highest_suitable_element(r_ref, i);
-        opt_ratings.push(r_ref.get(loc).unwrap());
-        r_ref = r_ref.get(loc + 1..).unwrap();
+        opt_ratings.push(char::from_digit(r_ref[loc], 10).unwrap());
+        r_ref = &r_ref[loc + 1..];
     }
 
-    opt_ratings
-        .iter()
-        .enumerate()
-        .map(|(i, r)| *r * 10_u64.pow((n - 1 - i) as u32))
-        .sum()
+    opt_ratings.parse().unwrap()
 }
 
 /// Sum the joltages from each bank to solve part 1
