@@ -10,30 +10,23 @@ fn parse_file(name: &str) -> (Vec<RangeInclusive<u64>>, Vec<u64>) {
     let file = File::open(name).unwrap();
     let reader = BufReader::new(file);
 
-    let mut data = Vec::new();
-    let mut split_loc = 0;
-    for (i, line) in reader.lines().enumerate() {
+    let mut ranges = Vec::new();
+    let mut ids = Vec::new();
+    let mut is_range = true;
+    for line in reader.lines() {
         let line_data = line.unwrap();
         if line_data.is_empty() {
-            split_loc = i;
-        } else {
-            data.push(line_data);
-        }
-    }
-    let ids: Vec<u64> = data
-        .split_off(split_loc)
-        .iter()
-        .map(|x| x.parse::<u64>().unwrap())
-        .collect();
-    let ranges = data
-        .iter()
-        .map(|x| {
-            let range = x.split_once("-").unwrap();
+            is_range = false;
+            continue;
+        } else if is_range {
+            let range = line_data.split_once("-").unwrap();
             let start = range.0.parse().unwrap();
             let end = range.1.parse().unwrap();
-            start..=end
-        })
-        .collect();
+            ranges.push(start..=end);
+        } else {
+            ids.push(line_data.parse::<u64>().unwrap());
+        }
+    }
 
     (ranges, ids)
 }
@@ -65,15 +58,15 @@ fn merge_ranges(ranges: &Vec<RangeInclusive<u64>>) -> Vec<RangeInclusive<u64>> {
     let mut sorted_ranges = ranges.clone();
     sorted_ranges.sort_by(|a, b| a.start().cmp(b.start()));
 
-    let mut merged_ranges = vec![sorted_ranges[0].clone()];
-    for range in sorted_ranges[1..].iter() {
+    let mut merged_ranges = vec![sorted_ranges.remove(0)];
+    for range in sorted_ranges {
         let previous_range = merged_ranges.last().unwrap();
         if *range.start() <= previous_range.end() + 1 {
             let new_range = *previous_range.start()..=*max(previous_range.end(), range.end());
             let end_loc = merged_ranges.len() - 1;
             merged_ranges[end_loc] = new_range;
         } else {
-            merged_ranges.push(range.clone());
+            merged_ranges.push(range);
         }
     }
     merged_ranges
