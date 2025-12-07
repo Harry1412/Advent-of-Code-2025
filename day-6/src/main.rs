@@ -21,8 +21,22 @@ impl<T: Copy> Array<T> {
     }
 }
 
+enum Operation {
+    ADD,
+    MULTIPLY,
+}
+impl From<char> for Operation {
+    fn from(value: char) -> Self {
+        match value {
+            '+' => Self::ADD,
+            '*' => Self::MULTIPLY,
+            _ => panic!("Unrecognised operation {}.", value),
+        }
+    }
+}
+
 /// Read the file and map the values to a custom array type
-fn parse_file(name: &str) -> (Array<u64>, Vec<char>) {
+fn parse_file(name: &str) -> (Array<u64>, Vec<Operation>) {
     let file = File::open(name).unwrap();
     let reader = BufReader::new(file);
 
@@ -36,7 +50,13 @@ fn parse_file(name: &str) -> (Array<u64>, Vec<char>) {
         let line_data = line.unwrap();
         let first_character = &line_data.chars().next().unwrap();
         if operators.contains(first_character) {
-            ops.append(&mut line_data.chars().filter(|x| x != &' ').collect());
+            ops.append(
+                &mut line_data
+                    .chars()
+                    // Use then rather than then some as this evaluates eagerly
+                    .filter_map(|x| (x != ' ').then(|| Operation::from(x)))
+                    .collect(),
+            );
         } else {
             data.append(
                 &mut line_data
@@ -53,15 +73,14 @@ fn parse_file(name: &str) -> (Array<u64>, Vec<char>) {
     (Array::new(data, ops.len(), n_lines - 1), ops)
 }
 
-/// Perforrm Cephalod math on the array with required operations
-fn cephalopod_math(data: &Array<u64>, ops: &Vec<char>) -> u64 {
+/// Perform Cephalopod math on the array with required operations
+fn cephalopod_math(data: &Array<u64>, ops: &Vec<Operation>) -> u64 {
     (0..data.dim_1)
         .map(|i| {
             let vec = (0..data.dim_2).map(|j| data.get(i, j));
             match ops[i] {
-                '+' => vec.sum::<u64>(),
-                '*' => vec.product::<u64>(),
-                _ => panic!("Unrecognised operator."),
+                Operation::ADD => vec.sum::<u64>(),
+                Operation::MULTIPLY => vec.product::<u64>(),
             }
         })
         .sum()
@@ -70,7 +89,7 @@ fn cephalopod_math(data: &Array<u64>, ops: &Vec<char>) -> u64 {
 /// Read the file and map the values to a vector of vectors, where each
 /// sub-vector contains the values that should be used within a particular
 /// computation
-fn parse_file_2(name: &str) -> (Vec<Vec<u64>>, Vec<char>) {
+fn parse_file_2(name: &str) -> (Vec<Vec<u64>>, Vec<Operation>) {
     let file = File::open(name).unwrap();
     let reader = BufReader::new(file);
 
@@ -83,7 +102,12 @@ fn parse_file_2(name: &str) -> (Vec<Vec<u64>>, Vec<char>) {
         let line_data = line.unwrap();
         let first_character = &line_data.chars().next().unwrap();
         if operators.contains(first_character) {
-            ops.append(&mut line_data.chars().filter(|x| x != &' ').collect());
+            ops.append(
+                &mut line_data
+                    .chars()
+                    .filter_map(|x| (x != ' ').then(|| Operation::from(x)))
+                    .collect(),
+            );
         } else {
             if data.is_empty() {
                 data.append(&mut line_data.chars().map(|f| String::from(f)).collect());
@@ -108,14 +132,15 @@ fn parse_file_2(name: &str) -> (Vec<Vec<u64>>, Vec<char>) {
     (conv_data, ops)
 }
 
-/// Perforrm Cephalod math on the vector with required operations
-fn cephalopod_math_2(data: &Vec<Vec<u64>>, ops: &Vec<char>) -> u64 {
+/// Perform Cephalopod math for part 2, in this case we take advantage of the
+/// fact that the parse file naturally returns a vector of values for each
+/// corresponding operation.
+fn cephalopod_math_2(data: &Vec<Vec<u64>>, ops: &Vec<Operation>) -> u64 {
     data.iter()
         .enumerate()
         .map(|(i, v)| match ops[i] {
-            '+' => v.iter().sum::<u64>(),
-            '*' => v.iter().product::<u64>(),
-            _ => panic!("Unrecognised operator."),
+            Operation::ADD => v.iter().sum::<u64>(),
+            Operation::MULTIPLY => v.iter().product::<u64>(),
         })
         .sum()
 }
