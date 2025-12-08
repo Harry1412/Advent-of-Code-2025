@@ -19,7 +19,7 @@ fn parse_file(name: &str) -> Vec<String> {
 /// Get the maximum joltage from a bank of batteries, where the total is
 /// comprised of two successive (but not necessarily adjacent) joltages from the
 /// bank. For example, with joltage ratings 3978, the maximum would be 98.
-fn get_joltage_1(ratings: &String) -> u32 {
+fn get_joltage_1(ratings: &str) -> u32 {
     let r_vec: Vec<u32> = ratings.chars().map(|c| c.to_digit(10).unwrap()).collect();
 
     let (loc, j1) = r_vec
@@ -55,7 +55,7 @@ fn highest_suitable_element(vec: &[u32], exclusion_len: usize) -> usize {
 /// Get the maximum joltage from a bank of batteries, where the total is
 /// comprised of n successive (but not necessarily adjacent) joltages from the
 /// bank.
-fn get_joltage_n(ratings: &String, n: usize) -> u64 {
+fn get_joltage_n(ratings: &str, n: usize) -> u64 {
     // Parse string data and convert to vector
     let r_vec: Vec<u32> = ratings.chars().map(|c| c.to_digit(10).unwrap()).collect();
 
@@ -73,12 +73,12 @@ fn get_joltage_n(ratings: &String, n: usize) -> u64 {
 }
 
 /// Sum the joltages from each bank to solve part 1
-fn sum_joltages_2(banks: &Vec<String>) -> u32 {
-    banks.iter().map(get_joltage_1).sum()
+fn sum_joltages_2(banks: &[String]) -> u32 {
+    banks.iter().map(|s| get_joltage_1(s.as_str())).sum()
 }
 
 /// Sum the joltages from each bank to solve part 2
-fn sum_joltages_n(banks: &Vec<String>, n: usize) -> u64 {
+fn sum_joltages_n(banks: &[String], n: usize) -> u64 {
     banks.iter().map(|b| get_joltage_n(b, n)).sum()
 }
 
@@ -97,4 +97,27 @@ fn main() {
     // for part 1 is quicker so has been preserved
     let total = sum_joltages_n(&banks, 2);
     println!("Part 1 total joltage (from general) = {}", total);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn part_1() {
+        let banks = parse_file("input.txt");
+        assert_eq!(sum_joltages_2(&banks), 17142)
+    }
+
+    #[test]
+    fn part_2() {
+        let banks = parse_file("input.txt");
+        assert_eq!(sum_joltages_n(&banks, 12), 169935154100102)
+    }
+
+    #[test]
+    fn part_1_alt() {
+        let banks = parse_file("input.txt");
+        assert_eq!(sum_joltages_n(&banks, 2), 17142)
+    }
 }

@@ -132,3 +132,20 @@ fn main() {
     let total = count_removeable_rolls(grid.clone());
     println!("Total removed rolls = {}", total);
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn part_1() {
+        let grid = parse_file("input.txt");
+        assert_eq!(count_accessible_rolls(&grid), 1351)
+    }
+
+    #[test]
+    fn part_2() {
+        let grid = parse_file("input.txt");
+        assert_eq!(count_removeable_rolls(grid.clone()), 8345)
+    }
+}

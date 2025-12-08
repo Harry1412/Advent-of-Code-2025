@@ -22,14 +22,14 @@ impl<T: Copy> Array<T> {
 }
 
 enum Operation {
-    ADD,
-    MULTIPLY,
+    Add,
+    Multiply,
 }
 impl From<char> for Operation {
     fn from(value: char) -> Self {
         match value {
-            '+' => Self::ADD,
-            '*' => Self::MULTIPLY,
+            '+' => Self::Add,
+            '*' => Self::Multiply,
             _ => panic!("Unrecognised operation {}.", value),
         }
     }
@@ -54,17 +54,15 @@ fn parse_file(name: &str) -> (Array<u64>, Vec<Operation>) {
                 &mut line_data
                     .chars()
                     // Use then rather than then some as this evaluates eagerly
-                    .filter_map(|x| (x != ' ').then(|| Operation::from(x)))
+                    .filter(|&x| x != ' ')
+                    .map(Operation::from)
                     .collect(),
             );
         } else {
             data.append(
                 &mut line_data
                     .split(" ")
-                    .filter_map(|x| match x.parse() {
-                        Ok(y) => Some(y),
-                        Err(_) => None,
-                    })
+                    .filter_map(|x| x.parse().ok())
                     .collect(),
             );
         }
@@ -74,13 +72,13 @@ fn parse_file(name: &str) -> (Array<u64>, Vec<Operation>) {
 }
 
 /// Perform Cephalopod math on the array with required operations
-fn cephalopod_math(data: &Array<u64>, ops: &Vec<Operation>) -> u64 {
+fn cephalopod_math(data: &Array<u64>, ops: &[Operation]) -> u64 {
     (0..data.dim_1)
         .map(|i| {
             let vec = (0..data.dim_2).map(|j| data.get(i, j));
             match ops[i] {
-                Operation::ADD => vec.sum::<u64>(),
-                Operation::MULTIPLY => vec.product::<u64>(),
+                Operation::Add => vec.sum::<u64>(),
+                Operation::Multiply => vec.product::<u64>(),
             }
         })
         .sum()
@@ -105,17 +103,16 @@ fn parse_file_2(name: &str) -> (Vec<Vec<u64>>, Vec<Operation>) {
             ops.append(
                 &mut line_data
                     .chars()
-                    .filter_map(|x| (x != ' ').then(|| Operation::from(x)))
+                    .filter(|&x| x != ' ')
+                    .map(Operation::from)
                     .collect(),
             );
+        } else if data.is_empty() {
+            data.append(&mut line_data.chars().map(String::from).collect());
         } else {
-            if data.is_empty() {
-                data.append(&mut line_data.chars().map(|f| String::from(f)).collect());
-            } else {
-                data.iter_mut()
-                    .zip(line_data.chars())
-                    .for_each(|(s, c)| s.push(c));
-            }
+            data.iter_mut()
+                .zip(line_data.chars())
+                .for_each(|(s, c)| s.push(c));
         }
     }
     let mut c1 = 0;
@@ -135,12 +132,12 @@ fn parse_file_2(name: &str) -> (Vec<Vec<u64>>, Vec<Operation>) {
 /// Perform Cephalopod math for part 2, in this case we take advantage of the
 /// fact that the parse file naturally returns a vector of values for each
 /// corresponding operation.
-fn cephalopod_math_2(data: &Vec<Vec<u64>>, ops: &Vec<Operation>) -> u64 {
+fn cephalopod_math_2(data: &[Vec<u64>], ops: &[Operation]) -> u64 {
     data.iter()
         .enumerate()
         .map(|(i, v)| match ops[i] {
-            Operation::ADD => v.iter().sum::<u64>(),
-            Operation::MULTIPLY => v.iter().product::<u64>(),
+            Operation::Add => v.iter().sum::<u64>(),
+            Operation::Multiply => v.iter().product::<u64>(),
         })
         .sum()
 }
@@ -155,4 +152,21 @@ fn main() {
     let (data, ops) = parse_file_2("input.txt");
     let total = cephalopod_math_2(&data, &ops);
     println!("Grand total (2) = {}", total);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn part_1() {
+        let (data, ops) = parse_file("input.txt");
+        assert_eq!(cephalopod_math(&data, &ops), 6172481852142)
+    }
+
+    #[test]
+    fn part_2() {
+        let (data, ops) = parse_file_2("input.txt");
+        assert_eq!(cephalopod_math_2(&data, &ops), 10188206723429)
+    }
 }

@@ -55,7 +55,7 @@ fn count_zero_clicks(start_value: i32, rotations: &Vec<i32>) -> u32 {
         }
 
         // If the dial has looped around then count additional clicks from this
-        if new_value < 0 || new_value > 99 {
+        if !(0..=99).contains(&new_value) {
             // Remove a click when starting from zero and becoming negative as
             // this should not be counted
             if current_value == 0 && *value < 0 {
@@ -63,7 +63,7 @@ fn count_zero_clicks(start_value: i32, rotations: &Vec<i32>) -> u32 {
             }
 
             // Find number of times the dial passes zero and the new value
-            n_clicks += new_value.div_euclid(100).abs() as u32;
+            n_clicks += new_value.div_euclid(100).unsigned_abs();
             new_value = new_value.rem_euclid(100);
 
             // When finishing on zero in the negative case an additional click
@@ -88,4 +88,21 @@ fn main() {
     // Part 2
     let n_zero_clicks = count_zero_clicks(50, &rotations);
     println!("Number of zero clicks = {}", n_zero_clicks);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn part_1() {
+        let rotations = parse_file("input.txt");
+        assert_eq!(count_zero_stops(50, &rotations), 1135)
+    }
+
+    #[test]
+    fn part_2() {
+        let rotations = parse_file("input.txt");
+        assert_eq!(count_zero_clicks(50, &rotations), 6558)
+    }
 }

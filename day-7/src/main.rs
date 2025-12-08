@@ -27,15 +27,7 @@ fn parse_file(name: &str) -> (Vec<Vec<bool>>, HashSet<usize>) {
                     }),
             ))
         } else if i % 2 == 0 {
-            beamsplitters.push(
-                line.unwrap()
-                    .chars()
-                    .map(|c| match c {
-                        '^' => true,
-                        _ => false,
-                    })
-                    .collect(),
-            );
+            beamsplitters.push(line.unwrap().chars().map(|c| matches!(c, '^')).collect());
         }
     }
     (beamsplitters, initial_positions.unwrap())
@@ -108,4 +100,27 @@ fn main() {
     // Part 2
     let total = count_number_of_timelines(&beamsplitters, &initial_positions);
     println!("Total splitting = {}", total);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn part_1() {
+        let (beamsplitters, initial_positions) = parse_file("input.txt");
+        assert_eq!(
+            count_number_of_splittings(&beamsplitters, &initial_positions),
+            1633
+        )
+    }
+
+    #[test]
+    fn part_2() {
+        let (beamsplitters, initial_positions) = parse_file("input.txt");
+        assert_eq!(
+            count_number_of_timelines(&beamsplitters, &initial_positions),
+            34339203133559
+        )
+    }
 }

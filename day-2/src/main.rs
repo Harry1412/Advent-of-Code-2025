@@ -25,7 +25,7 @@ fn parse_file(name: &str) -> Vec<RangeInclusive<u64>> {
 fn check_if_invalid(id: &u64) -> bool {
     let str_id = id.to_string();
     // Only check ids which are a multiple of 2
-    if str_id.len() % 2 == 0 {
+    if str_id.len().is_multiple_of(2) {
         let mid = str_id.len() / 2;
         let parts = str_id.split_at(mid);
         if parts.0 == parts.1 {
@@ -38,7 +38,7 @@ fn check_if_invalid(id: &u64) -> bool {
 /// Sum all invalid ids within the provided ranges, where an invalid id is
 /// defined as the first and second halves being identical i.e. of the format
 /// XYZXYZ
-fn sum_invalid_ids(ranges: &Vec<RangeInclusive<u64>>) -> u64 {
+fn sum_invalid_ids(ranges: &[RangeInclusive<u64>]) -> u64 {
     ranges
         .iter()
         .map(|r| r.to_owned().filter(check_if_invalid).sum::<u64>())
@@ -68,10 +68,8 @@ fn check_if_invalid_2(id: &u64) -> bool {
     // Loop through all possible factors of the number of digits
     for n in 2..=n_digits {
         // Only check ids which are a multiple of n
-        if str_id.len() % n == 0 {
-            if check_parts_equal(str_id.clone(), n) {
-                return true;
-            }
+        if str_id.len().is_multiple_of(n) && check_parts_equal(str_id.clone(), n) {
+            return true;
         }
     }
     false
@@ -79,7 +77,7 @@ fn check_if_invalid_2(id: &u64) -> bool {
 
 /// Sum all invalid ids within the provided ranges, where an invalid id is
 /// defined as having a component repeated any number of times e.g. XYXY, XYXYXY
-fn sum_invalid_ids_2(ranges: &Vec<RangeInclusive<u64>>) -> u64 {
+fn sum_invalid_ids_2(ranges: &[RangeInclusive<u64>]) -> u64 {
     ranges
         .iter()
         .map(|r| r.to_owned().filter(check_if_invalid_2).sum::<u64>())
@@ -96,4 +94,21 @@ fn main() {
     // Part 2
     let total2 = sum_invalid_ids_2(&ranges);
     println!("Invalid id total 2 = {}", total2);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn part_1() {
+        let ranges = parse_file("input.txt");
+        assert_eq!(sum_invalid_ids(&ranges), 43952536386)
+    }
+
+    #[test]
+    fn part_2() {
+        let ranges = parse_file("input.txt");
+        assert_eq!(sum_invalid_ids_2(&ranges), 54486209192)
+    }
 }

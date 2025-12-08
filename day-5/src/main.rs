@@ -43,7 +43,7 @@ fn ranges_contain_id(ranges: &Vec<RangeInclusive<u64>>, id: &u64) -> bool {
 
 /// Sums the number of ids from the provided vector which exist with the set of
 /// valud ranges.
-fn count_id_in_range(ranges: &Vec<RangeInclusive<u64>>, ids: &Vec<u64>) -> u64 {
+fn count_id_in_range(ranges: &Vec<RangeInclusive<u64>>, ids: &[u64]) -> u64 {
     ids.iter()
         .map(|x| match ranges_contain_id(ranges, x) {
             true => 1_u64,
@@ -54,8 +54,8 @@ fn count_id_in_range(ranges: &Vec<RangeInclusive<u64>>, ids: &Vec<u64>) -> u64 {
 
 /// Takes a vector of ranges and simplifies then by merging overlapping/adjacent
 /// ranges
-fn merge_ranges(ranges: &Vec<RangeInclusive<u64>>) -> Vec<RangeInclusive<u64>> {
-    let mut sorted_ranges = ranges.clone();
+fn merge_ranges(ranges: &[RangeInclusive<u64>]) -> Vec<RangeInclusive<u64>> {
+    let mut sorted_ranges = ranges.to_vec();
     sorted_ranges.sort_by(|a, b| a.start().cmp(b.start()));
 
     let mut merged_ranges = vec![sorted_ranges.remove(0)];
@@ -73,7 +73,7 @@ fn merge_ranges(ranges: &Vec<RangeInclusive<u64>>) -> Vec<RangeInclusive<u64>> {
 }
 
 /// Sum the number of valid ids within the provided vector of ranges
-fn sum_ids_in_range(ranges: &Vec<RangeInclusive<u64>>) -> u64 {
+fn sum_ids_in_range(ranges: &[RangeInclusive<u64>]) -> u64 {
     ranges.iter().map(|x| x.end() - x.start() + 1).sum()
 }
 
@@ -89,4 +89,23 @@ fn main() {
     // Part 2
     let total = sum_ids_in_range(&simplified_ranges);
     println!("Number of valid ids = {total}");
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn part_1() {
+        let (ranges, ids) = parse_file("input.txt");
+        let simplified_ranges = merge_ranges(&ranges);
+        assert_eq!(count_id_in_range(&simplified_ranges, &ids), 615)
+    }
+
+    #[test]
+    fn part_2() {
+        let (ranges, _) = parse_file("input.txt");
+        let simplified_ranges = merge_ranges(&ranges);
+        assert_eq!(sum_ids_in_range(&simplified_ranges), 353716783056994)
+    }
 }
