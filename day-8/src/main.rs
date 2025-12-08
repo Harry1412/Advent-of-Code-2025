@@ -51,22 +51,15 @@ fn parse_file(name: &str) -> Vec<Node> {
         .collect()
 }
 
-/// Calculates all possible connections between nodes and finds the distance
-/// between then
-fn find_all_distances(nodes: &[Node]) -> Vec<((usize, usize), u64)> {
+/// Finds all possible nodes and the distances between them, and then sorts from
+/// shortest to largest
+fn find_all_distances_sorted(nodes: &[Node]) -> Vec<((usize, usize), u64)> {
     let mut distances = Vec::new();
     for i in 0..nodes.len() {
         for j in i + 1..nodes.len() {
             distances.push(((i, j), nodes[i].distance(&nodes[j])))
         }
     }
-    distances
-}
-
-/// Finds all possible nodes and the distance between them and sorts from
-/// shortest to largest
-fn find_all_distances_sorted(nodes: &[Node]) -> Vec<((usize, usize), u64)> {
-    let mut distances = find_all_distances(nodes);
     distances.sort_by_key(|(_, d)| *d);
     distances
 }
@@ -116,19 +109,13 @@ fn add_connection_to_circuits(circuits: &mut Vec<HashSet<usize>>, connection: &(
     }
 }
 
-/// Builds a circuit from a set of connections between junction boxes
-fn build_circuits(connections: &[(usize, usize)]) -> Vec<HashSet<usize>> {
+/// Finds the n-largest circuits created by a set of connections between
+/// junction boxes and multiply the sizes of these circuits together
+fn find_and_multiply_n_largest_circuits(connections: &[(usize, usize)], n: usize) -> usize {
     let mut circuits = Vec::new();
     for con in connections {
         add_connection_to_circuits(&mut circuits, con);
     }
-    circuits
-}
-
-/// Finds the n-largest circuits created by a set of connections between
-/// junction boxes and multiply the sizes of these circuits together
-fn find_and_multiply_n_largest_circuits(connections: &[(usize, usize)], n: usize) -> usize {
-    let circuits = build_circuits(connections);
     let mut sizes: Vec<usize> = circuits.iter().map(|f| f.len()).collect();
     sizes.sort();
     sizes[sizes.len() - n..].iter().product()
@@ -151,9 +138,8 @@ fn find_last_connection_for_complete_circuit(
 }
 
 /// Find the last connection required from the vector of connections which is
-/// required to connect all junction boxes and then finds the product of the X
-/// components
-/// of these
+/// required to connect all junction boxes. The product of the x coordinates of
+/// the nodes involved in this connection is then found.
 fn get_product_of_last_connection(connections: &[(usize, usize)], nodes: &[Node]) -> u64 {
     let last_connection = find_last_connection_for_complete_circuit(connections, nodes.len());
     nodes[last_connection.0].x * nodes[last_connection.1].x
