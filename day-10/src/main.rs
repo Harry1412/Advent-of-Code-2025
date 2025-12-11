@@ -6,7 +6,6 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 
 /// Stores the required data for each machine
-#[derive(Debug)]
 struct Machine {
     target_lights: u16,
     buttons: Vec<Vec<usize>>,

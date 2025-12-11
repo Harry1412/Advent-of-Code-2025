@@ -6,8 +6,8 @@ use std::io::{BufRead, BufReader};
 
 /// Stores a graph with a number of nodes and edges. When introducing a new edge
 /// to the graph, if the node is new then it will be assigned an integer id.
-/// This id can be view in node map and is then used to represent the edge.
-#[derive(Debug)]
+/// This id can be viewed in the node map and is then used to represent the
+/// edge.
 struct Graph {
     node_map: HashMap<String, u16>,
     edges: HashMap<u16, Vec<u16>>,
