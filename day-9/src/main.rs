@@ -1,3 +1,5 @@
+// Solution to day 9 of the Advent of Code challenge
+
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 

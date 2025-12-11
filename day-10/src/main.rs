@@ -1,3 +1,5 @@
+// Solution to day 10 of the Advent of Code challenge
+
 use good_lp::*;
 use std::collections::HashSet;
 use std::fs::File;

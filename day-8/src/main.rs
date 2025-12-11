@@ -1,4 +1,4 @@
-// Solution to day 7 of the Advent of Code challenge
+// Solution to day 8 of the Advent of Code challenge
 
 use std::cmp::Ordering;
 use std::collections::HashSet;
