@@ -8,7 +8,7 @@ do
     crate_name="day-$i"
     if [ -d "$crate_name" ]; then 
         echo -e "${BLUE}Day $i RUNNING${NC}"
-        if (cd "$crate_name" && cargo test --release --quiet); then
+        if (cd "$crate_name" && cargo test --quiet); then
             echo -e "${GREEN}Day $i PASSED ${NC}\n\n"
         else
             echo -e "${RED}Day $i FAILED ${NC}\n\n"
