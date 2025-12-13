@@ -15,8 +15,8 @@ impl Node {
     fn new(x: u64, y: u64, z: u64) -> Self {
         Node { x, y, z }
     }
-    /// Returns the square of the distance between
-    fn distance(&self, node: &Node) -> u64 {
+    /// Returns the square of the distance between the current node and another
+    fn distance_with(&self, node: &Node) -> u64 {
         self.x.abs_diff(node.x).pow(2)
             + self.y.abs_diff(node.y).pow(2)
             + self.z.abs_diff(node.z).pow(2)
@@ -54,12 +54,11 @@ fn parse_file(name: &str) -> Vec<Node> {
 /// Finds all possible nodes and the distances between them, and then sorts from
 /// shortest to largest
 fn find_all_distances_sorted(nodes: &[Node]) -> Vec<((usize, usize), u64)> {
-    let mut distances = Vec::new();
-    for i in 0..nodes.len() {
-        for j in i + 1..nodes.len() {
-            distances.push(((i, j), nodes[i].distance(&nodes[j])))
-        }
-    }
+    let mut distances: Vec<((usize, usize), u64)> = (0..nodes.len())
+        .flat_map(|i| {
+            (i + 1..nodes.len()).map(move |j| ((i, j), nodes[i].distance_with(&nodes[j])))
+        })
+        .collect();
     distances.sort_by_key(|(_, d)| *d);
     distances
 }
