@@ -31,21 +31,11 @@ fn parse_file(name: &str) -> (Vec<RangeInclusive<u64>>, Vec<u64>) {
     (ranges, ids)
 }
 
-/// Checks if a set of ranges contains a provided id.
-fn ranges_contain_id(ranges: &Vec<RangeInclusive<u64>>, id: &u64) -> bool {
-    for r in ranges {
-        if r.contains(id) {
-            return true;
-        }
-    }
-    false
-}
-
 /// Sums the number of ids from the provided vector which exist with the set of
 /// valud ranges.
-fn count_id_in_range(ranges: &Vec<RangeInclusive<u64>>, ids: &[u64]) -> u64 {
+fn count_id_in_range(ranges: &[RangeInclusive<u64>], ids: &[u64]) -> u64 {
     ids.iter()
-        .map(|x| match ranges_contain_id(ranges, x) {
+        .map(|x| match ranges.iter().any(|r| r.contains(x)) {
             true => 1_u64,
             false => 0,
         })
