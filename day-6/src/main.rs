@@ -50,21 +50,9 @@ fn parse_file(name: &str) -> (Array<u64>, Vec<Operation>) {
         let line_data = line.unwrap();
         let first_character = &line_data.chars().next().unwrap();
         if operators.contains(first_character) {
-            ops.append(
-                &mut line_data
-                    .chars()
-                    // Use then rather than then some as this evaluates eagerly
-                    .filter(|&x| x != ' ')
-                    .map(Operation::from)
-                    .collect(),
-            );
+            ops.extend(line_data.chars().filter(|&x| x != ' ').map(Operation::from));
         } else {
-            data.append(
-                &mut line_data
-                    .split(" ")
-                    .filter_map(|x| x.parse().ok())
-                    .collect(),
-            );
+            data.extend(line_data.split(" ").filter_map(|x| x.parse::<u64>().ok()));
         }
     }
 
@@ -100,15 +88,9 @@ fn parse_file_2(name: &str) -> (Vec<Vec<u64>>, Vec<Operation>) {
         let line_data = line.unwrap();
         let first_character = &line_data.chars().next().unwrap();
         if operators.contains(first_character) {
-            ops.append(
-                &mut line_data
-                    .chars()
-                    .filter(|&x| x != ' ')
-                    .map(Operation::from)
-                    .collect(),
-            );
+            ops.extend(line_data.chars().filter(|&x| x != ' ').map(Operation::from));
         } else if data.is_empty() {
-            data.append(&mut line_data.chars().map(String::from).collect());
+            data.extend(line_data.chars().map(String::from));
         } else {
             data.iter_mut()
                 .zip(line_data.chars())
@@ -134,10 +116,10 @@ fn parse_file_2(name: &str) -> (Vec<Vec<u64>>, Vec<Operation>) {
 /// corresponding operation.
 fn cephalopod_math_2(data: &[Vec<u64>], ops: &[Operation]) -> u64 {
     data.iter()
-        .enumerate()
-        .map(|(i, v)| match ops[i] {
-            Operation::Add => v.iter().sum::<u64>(),
-            Operation::Multiply => v.iter().product::<u64>(),
+        .zip(ops)
+        .map(|(value, op)| match op {
+            Operation::Add => value.iter().sum::<u64>(),
+            Operation::Multiply => value.iter().product::<u64>(),
         })
         .sum()
 }
